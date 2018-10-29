@@ -5,10 +5,21 @@ using UnityEngine;
 public class Enemy : MonoBehaviour 
 {
 	public GameObject player;
+	public float AmountOfDamageMin = 3.0f;
+	public float AmountOfDamageMax = 5.0f;
+
+
+
     private Actions actionsComponent;
 	private PlayerController playerController;
     private bool isRunningToPlayer;
 	private bool isDead = false;
+	private float timeBetweenAttacks = 1.7f;
+	private float timeFromLastAttack = 0.0f;
+	private int distanceRunCloser = 13;
+	private int distanceStopRunningCloser = 10;
+
+
 
     void Start ()
     {    
@@ -52,15 +63,21 @@ public class Enemy : MonoBehaviour
 
 	void MoveReactionForPlayer(int distanceFromPlayer)
 	{
-		if (distanceFromPlayer > 13 && !isRunningToPlayer)
+		timeFromLastAttack += Time.deltaTime;
+		if (distanceFromPlayer > distanceRunCloser && !isRunningToPlayer)
 		{
 			isRunningToPlayer = true;
 			actionsComponent.Run();
 		}
-		else if (distanceFromPlayer < 10)
+		else if (distanceFromPlayer < distanceStopRunningCloser)
 		{
-			isRunningToPlayer  = false;
-			actionsComponent.Attack();
+			isRunningToPlayer = false;
+			if (timeFromLastAttack > timeBetweenAttacks)
+			{
+				timeFromLastAttack = 0.0f;
+				actionsComponent.Attack();
+				DealDamageToPlayer();
+			}
 		}
 	}
 
@@ -70,5 +87,11 @@ public class Enemy : MonoBehaviour
 		direction.y = 0; // bez osi y
 
 		this.transform.rotation = Quaternion.Slerp(this.transform.rotation, Quaternion.LookRotation(direction), 0.1f); // ustawienie rotacji
+	}
+
+	void DealDamageToPlayer()
+	{
+		float dmg = Random.Range(AmountOfDamageMin,  AmountOfDamageMax);
+		player.GetComponent<HealthSystem>().ChangeHealth(-dmg);
 	}
 }
