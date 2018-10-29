@@ -5,27 +5,33 @@ using UnityEngine;
 public class Enemy : MonoBehaviour 
 {
 	public GameObject player;
-    public int startingHitpoints = 100;
-
     private Actions actionsComponent;
 	private PlayerController playerController;
     private bool isRunningToPlayer;
-    private int hitpoints;
+	private bool isDead = false;
 
     void Start ()
     {    
         actionsComponent = GetComponent<Actions>();
         playerController = GetComponent<PlayerController>();
         isRunningToPlayer = false;
-        hitpoints = startingHitpoints;
     }
 
     void Update()
 	{
-		int distanceFromPlayer = (int)Vector3.Distance(player.transform.position, this.transform.position);	
-		ChangeWeapon(distanceFromPlayer);
-		FacePlayer();
-		MoveReactionForPlayer(distanceFromPlayer);
+		if (!isDead)
+		{
+			int distanceFromPlayer = (int)Vector3.Distance(player.transform.position, this.transform.position);
+			ChangeWeapon(distanceFromPlayer);
+			FacePlayer();
+			MoveReactionForPlayer(distanceFromPlayer);
+			
+			if (GetComponent<HealthSystem>().dead)
+			{
+				actionsComponent.Death();
+				isDead = true;
+			}
+		}
 	}
 
 	void ChangeWeapon(int distanceFromPlayer)
