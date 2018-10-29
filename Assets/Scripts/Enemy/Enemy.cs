@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class Enemy : MonoBehaviour 
 {
@@ -14,10 +15,13 @@ public class Enemy : MonoBehaviour
 	private PlayerController playerController;
     private bool isRunningToPlayer;
 	private bool isDead = false;
+	private bool playerDetected = true;
 	private float timeBetweenAttacks = 1.7f;
 	private float timeFromLastAttack = 0.0f;
 	private int distanceRunCloser = 13;
 	private int distanceStopRunningCloser = 10;
+	private bool playerIsVisible = false;
+	private float rayRange = 100f;
 
 
 
@@ -33,6 +37,7 @@ public class Enemy : MonoBehaviour
 		if (!isDead)
 		{
 			int distanceFromPlayer = (int)Vector3.Distance(player.transform.position, this.transform.position);
+			CheckVisibilityOfPlayer();
 			ChangeWeapon(distanceFromPlayer);
 			FacePlayer();
 			MoveReactionForPlayer(distanceFromPlayer);
@@ -64,12 +69,12 @@ public class Enemy : MonoBehaviour
 	void MoveReactionForPlayer(int distanceFromPlayer)
 	{
 		timeFromLastAttack += Time.deltaTime;
-		if (distanceFromPlayer > distanceRunCloser && !isRunningToPlayer)
+		if (distanceFromPlayer > distanceRunCloser && !isRunningToPlayer || !playerDetected)
 		{
 			isRunningToPlayer = true;
 			actionsComponent.Run();
 		}
-		else if (distanceFromPlayer < distanceStopRunningCloser)
+		else if (distanceFromPlayer < distanceStopRunningCloser && playerDetected)
 		{
 			isRunningToPlayer = false;
 			if (timeFromLastAttack > timeBetweenAttacks)
@@ -93,5 +98,30 @@ public class Enemy : MonoBehaviour
 	{
 		float dmg = Random.Range(AmountOfDamageMin,  AmountOfDamageMax);
 		player.GetComponent<HealthSystem>().ChangeHealth(-dmg);
+	}
+
+	void CheckVisibilityOfPlayer()
+	{
+		var origin = transform.position;
+		origin.y += 0.5f;
+		Ray ray = new Ray(origin, transform.forward);
+		Debug.DrawRay(transform.position, transform.forward, Color.green);
+		var hits = Physics.RaycastAll(ray).OrderBy(x => x.distance);
+
+		foreach (var hit in hits)
+		{
+			if (hit.collider.gameObject.CompareTag("Obstacle"))
+			{
+				playerDetected = false;
+				break;
+			}
+			else if (hit.collider.gameObject.CompareTag("Player"))
+			{
+				playerDetected = true;
+				break;
+			}
+		}
+
+		Debug.Log(playerDetected);
 	}
 }
