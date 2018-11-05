@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class UIController : MonoBehaviour {
 
@@ -29,13 +30,21 @@ public class UIController : MonoBehaviour {
 		{
 			showDebugInfo = showDebugInfo ? false : true;
 		}
+		else if (Input.GetKeyDown(KeyCode.R))
+		{
+       		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+		}
+		else if (Input.GetKeyDown(KeyCode.Escape))
+		{
+			Application.Quit();
+		}
 	}
 	
 	void OnGUI()
 	{
 		ShowLabel(Screen.width - 10, Screen.height - 10, GetPlayerInfo());
 		ShowLabel(Screen.width - 10, 10, string.Format("Copyright 2018 Rafał Bukowski\nv.{0}", programVersion, true));
-		ShowLabel(10, 10, GetDebugInfo());
+		ShowLabel(10, 10, GetControlsInfo() + (showDebugInfo ? GetDebugInfo() : String.Empty));
 	}
 
 	void ShowLabel(float posX, float posY, string text, bool alignToRight = false)
@@ -64,7 +73,7 @@ public class UIController : MonoBehaviour {
 
 	string GetDebugInfo()
 	{
-		string toReturn = "Y - show/hide debug info\n";
+		string toReturn = string.Empty;
 		if (showDebugInfo)
 		{
 			toReturn += string.Format("Number of enemies (alive/all) : {0}/{1}", enemies.Where(x => !x.GetComponent<Enemy>().isDead).Count(), enemies.Count());
@@ -78,8 +87,15 @@ public class UIController : MonoBehaviour {
 				toReturn += Environment.NewLine;
 			}
 		}
-
 		return toReturn;
+	}
+
+	string GetControlsInfo()
+	{
+		return @"Esc - quit the game
+R - reset the game
+Y - show/hide debug info
+";
 	}
 
 	string GetCharacterHealthInfo(GameObject character)

@@ -8,7 +8,7 @@ public class HealthSystem : MonoBehaviour
 	public float startingHealth = 100.0f;
 	public float currentHealth;	
 	public float maxHealth = 100.0f;
-
+	public GameObject lastCauseOfDamage;
 
 	public void ChangeHealth(float amount)
 	{

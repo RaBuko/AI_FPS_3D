@@ -111,6 +111,7 @@ public class Enemy : MonoBehaviour
 	{
 		float dmg = Random.Range(AmountOfDamageMin,  AmountOfDamageMax);
 		player.GetComponent<HealthSystem>().ChangeHealth(-dmg);
+		player.GetComponent<HealthSystem>().lastCauseOfDamage = gameObject;
 	}
 
 	bool CheckVisibilityOfPlayer()
