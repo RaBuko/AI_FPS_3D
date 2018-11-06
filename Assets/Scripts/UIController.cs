@@ -29,6 +29,7 @@ public class UIController : MonoBehaviour {
 	{
 		if (player.GetComponent<HealthSystem>().currentHealth < 0)
 		{
+			PlayerPrefs.SetInt("LastKillRatio", enemies.Count() - GetNumberOfAliveEnemies());
 			SceneManager.LoadScene(1);
 		}
 		enemies = GameObject.FindGameObjectsWithTag("Enemy").ToList();
@@ -51,16 +52,19 @@ public class UIController : MonoBehaviour {
 		ShowLabel(Screen.width - 15, Screen.height - 15, GetPlayerInfo(), true);
 		ShowLabel(Screen.width - 15, 15, string.Format("Copyright 2018 Rafał Bukowski\nv.{0}", programVersion, true));
 		ShowLabel(15, 15, GetControlsInfo() + (showDebugInfo ? GetDebugInfo() : String.Empty));
-		DrawHealthBar();
+
+		ShowLabel(Screen.width / 2 - style.CalcSize(new GUIContent("Health")).x / 2, Screen.height - HealthBarSize.y - 20, "Health");
+		DrawRect(new Rect(Screen.width / 2 - HealthBarSize.x / 2, Screen.height - HealthBarSize.y / 2 - 10, HealthBarSize.x, HealthBarSize.y), Color.black);
+		DrawRect(new Rect(Screen.width / 2 - HealthBarSize.x / 2, Screen.height - HealthBarSize.y / 2 - 10, (HealthBarSize.x / player.GetComponent<HealthSystem>().maxHealth) * player.GetComponent<HealthSystem>().currentHealth, HealthBarSize.y), Color.green);
 	}
 
-	void DrawHealthBar()
-	{ 
-		#if UNITY_EDITOR 
-		ShowLabel(Screen.width / 2 - style.CalcSize(new GUIContent("Health")).x / 2, Screen.height - HealthBarSize.y - 20, "Health");
-        UnityEditor.EditorGUI.DrawRect(new Rect(Screen.width / 2 - HealthBarSize.x / 2, Screen.height - HealthBarSize.y / 2 - 10, HealthBarSize.x, HealthBarSize.y), Color.black);
-        UnityEditor.EditorGUI.DrawRect(new Rect(Screen.width / 2 - HealthBarSize.x / 2, Screen.height - HealthBarSize.y / 2 - 10, (HealthBarSize.x / player.GetComponent<HealthSystem>().maxHealth) * player.GetComponent<HealthSystem>().currentHealth, HealthBarSize.y), Color.green);
-		#endif
+	void DrawRect(Rect position, Color color)
+	{
+		Texture2D rectTexture = new Texture2D(1, 1);
+		rectTexture.SetPixel(0,0,color);
+		rectTexture.Apply();
+		GUI.skin.box.normal.background = rectTexture;
+		GUI.Box(position, GUIContent.none);
 	}
 
 	void ShowLabel(float posX, float posY, string text, bool alignToRight = false)

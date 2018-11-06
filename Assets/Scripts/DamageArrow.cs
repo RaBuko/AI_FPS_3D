@@ -8,7 +8,7 @@ public class DamageArrow : MonoBehaviour {
 	public GameObject damageArrow;
 	HealthSystem playersHealthSystem;
 	float historicalHealth;
-	public float maxTimeShown = 0.6f;
+	public float maxTimeShown = 0.5f;
 	float currentTimeShown = 0.0f;
 	Vector3 pointing;
 
