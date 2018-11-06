@@ -8,7 +8,7 @@ public class Spawn : MonoBehaviour {
 	public float timeBetweenSpawns = 10.0f;
 	public float spawnTime = 0.0f;
 	public Transform lastSpawner;
-
+	public float timeBetweenSpawnsModifier = 0.5f;
 	
 	void Start()
 	{
@@ -21,6 +21,10 @@ public class Spawn : MonoBehaviour {
 		spawnTime -= Time.deltaTime;
 		if (spawnTime <= 0)
 		{
+			if (timeBetweenSpawns > 1)
+			{
+				timeBetweenSpawns -= timeBetweenSpawnsModifier;
+			}
 			spawnTime = timeBetweenSpawns;
 			lastSpawner = ChooseSpawner();
 			Instantiate(gameObjectToSpawn, lastSpawner.transform.position, Quaternion.identity);

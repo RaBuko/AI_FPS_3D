@@ -62,6 +62,7 @@ public class Enemy : MonoBehaviour
 			{
 				actionsComponent.Death();
 				isDead = true;
+				Destroy(GetComponent<Rigidbody>(), 2);
 			}
 		}
 	}

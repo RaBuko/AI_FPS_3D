@@ -4,9 +4,8 @@ using UnityEngine;
 
 public class PlayerMouseMovement : MonoBehaviour 
 {
-	public float sensitivityX = 10F, sensitivityY = 10F, // czułosc myszy
-		minimumX = -360F, maximumX = 360F,	// min i max kat osi X
-		minimumY = -60F, maximumY = 60F; // min i max kat osi Y
+	public float sensitivityX = 10F, sensitivityY = 10F; // czułosc myszy
+	public float minimumY = -60F, maximumY = 60F; // min i max kat osi Y
     public float rotationX = 0F, rotationY = 0F;
     private List<float> rotArrayX = new List<float>();
     float sumRotationX;
@@ -44,7 +43,6 @@ public class PlayerMouseMovement : MonoBehaviour
         sumRotationX /= rotArrayX.Count;
        
         sumRotationY = Mathf.Clamp (sumRotationY, minimumY, maximumY);
-        sumRotationX = Mathf.Clamp (sumRotationX, minimumX, maximumX);
        
     	Quaternion xQuaternion = Quaternion.AngleAxis (sumRotationX, Vector3.up);
         Quaternion yQuaternion = Quaternion.AngleAxis (sumRotationY, Vector3.left);
@@ -52,7 +50,8 @@ public class PlayerMouseMovement : MonoBehaviour
         transform.localRotation = originalRotation * xQuaternion * yQuaternion;
     }
     void Start ()
-    {    
+    {   
+        Cursor.visible = false;
         Rigidbody rigidbody = GetComponent<Rigidbody>();
         originalRotation = transform.localRotation; // zachowanie poczatkowej rotacji
         rigidbody.freezeRotation = true; // fizyka nie wplywa na rotacje obiektu

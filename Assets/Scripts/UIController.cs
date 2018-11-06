@@ -7,12 +7,13 @@ using UnityEngine.SceneManagement;
 
 public class UIController : MonoBehaviour {
 
-	private Version programVersion = new Version("1.0.0");
+	private Version programVersion = new Version("1.2.2");
 	private GameObject player;
 	private List<GameObject> enemies;
 	private GameObject spawner;
 	private GUIStyle style;
 	private float nativeSize = 800.0f;
+	public Vector2 HealthBarSize;
 
 	bool showDebugInfo = false;
 
@@ -21,16 +22,21 @@ public class UIController : MonoBehaviour {
 		style.fontSize = (int)(10.0f * ((float)Screen.width / nativeSize));
 		player = GameObject.FindGameObjectWithTag("Player");
 		spawner = GameObject.FindGameObjectWithTag("Spawner");
+		HealthBarSize = new Vector2(400, 50);
 	}
 
 	void Update()
 	{
+		if (player.GetComponent<HealthSystem>().currentHealth < 0)
+		{
+			SceneManager.LoadScene(1);
+		}
 		enemies = GameObject.FindGameObjectsWithTag("Enemy").ToList();
 		if (Input.GetKeyDown(KeyCode.Y))
 		{
 			showDebugInfo = showDebugInfo ? false : true;
 		}
-		else if (Input.GetKeyDown(KeyCode.R))
+		else if (Input.GetKeyDown(KeyCode.U))
 		{
        		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 		}
@@ -39,12 +45,22 @@ public class UIController : MonoBehaviour {
 			Application.Quit();
 		}
 	}
-	
+
 	void OnGUI()
 	{
-		ShowLabel(Screen.width - 10, Screen.height - 10, GetPlayerInfo());
-		ShowLabel(Screen.width - 10, 10, string.Format("Copyright 2018 Rafał Bukowski\nv.{0}", programVersion, true));
-		ShowLabel(10, 10, GetControlsInfo() + (showDebugInfo ? GetDebugInfo() : String.Empty));
+		ShowLabel(Screen.width - 15, Screen.height - 15, GetPlayerInfo(), true);
+		ShowLabel(Screen.width - 15, 15, string.Format("Copyright 2018 Rafał Bukowski\nv.{0}", programVersion, true));
+		ShowLabel(15, 15, GetControlsInfo() + (showDebugInfo ? GetDebugInfo() : String.Empty));
+		DrawHealthBar();
+	}
+
+	void DrawHealthBar()
+	{ 
+		#if UNITY_EDITOR 
+		ShowLabel(Screen.width / 2 - style.CalcSize(new GUIContent("Health")).x / 2, Screen.height - HealthBarSize.y - 20, "Health");
+        UnityEditor.EditorGUI.DrawRect(new Rect(Screen.width / 2 - HealthBarSize.x / 2, Screen.height - HealthBarSize.y / 2 - 10, HealthBarSize.x, HealthBarSize.y), Color.black);
+        UnityEditor.EditorGUI.DrawRect(new Rect(Screen.width / 2 - HealthBarSize.x / 2, Screen.height - HealthBarSize.y / 2 - 10, (HealthBarSize.x / player.GetComponent<HealthSystem>().maxHealth) * player.GetComponent<HealthSystem>().currentHealth, HealthBarSize.y), Color.green);
+		#endif
 	}
 
 	void ShowLabel(float posX, float posY, string text, bool alignToRight = false)
@@ -64,8 +80,7 @@ public class UIController : MonoBehaviour {
 
 	string GetPlayerInfo()
 	{
-		return string.Format("Health: {0}\nFrags: {1}\nAlive enemies: {2}", 
-			System.Math.Round(player.GetComponent<HealthSystem>().currentHealth),
+		return string.Format("Frags: {0}\nAlive enemies: {1}",
 			enemies.Count() - GetNumberOfAliveEnemies(),
 			GetNumberOfAliveEnemies()	
 		);
@@ -93,8 +108,11 @@ public class UIController : MonoBehaviour {
 	string GetControlsInfo()
 	{
 		return @"Esc - quit the game
-R - reset the game
+U - reset the game
 Y - show/hide debug info
+W,A,S,D or arrows - moving the player
+1,2,3 - choice of weapons
+R - reload weapon
 ";
 	}
 
@@ -112,7 +130,8 @@ Y - show/hide debug info
 	string GetEnemyAdditionalInfo(GameObject enemy)
 	{
 		var enemyData = enemy.GetComponent<Enemy>();
-		return string.Format(", PlayerDetected: {0}, IsRunning: {1}, TimeLastAttack: {2}",
+		if (enemyData.isDead) return String.Empty;
+		else return string.Format(", PlayerDetected: {0}, IsRunning: {1}, TimeLastAttack: {2}",
 			enemyData.playerDetected,
 			enemyData.isRunning,
 			System.Math.Round(enemyData.timeToAttack, 2)
@@ -123,7 +142,7 @@ Y - show/hide debug info
 	{
 		return string.Format("Spawner - LastSpawnPosition: {0}, TimeToNextSpawn: {1}",
 			spawner.GetComponent<Spawn>().lastSpawner.transform.position,
-			spawner.GetComponent<Spawn>().spawnTime
+			Mathf.Round(spawner.GetComponent<Spawn>().spawnTime)
 		);
 	}
 
