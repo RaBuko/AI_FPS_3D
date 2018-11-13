@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class UIController : MonoBehaviour {
 
-	private Version programVersion = new Version("1.2.2");
+	private Version programVersion = new Version("1.2.4");
 	private GameObject player;
 	private List<GameObject> enemies;
 	private GameObject spawner;
