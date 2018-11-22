@@ -1,39 +1,25 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class HealthSystem : MonoBehaviour
-{
-	public bool canDie = true;
+public class HealthSystem : MonoBehaviour {
 	public bool dead = false;
-	public float startingHealth = 100.0f;
 	public float currentHealth;	
 	public float maxHealth = 100.0f;
 	public GameObject lastCauseOfDamage;
-
-	public void ChangeHealth(float amount)
-	{
-		if (!dead)
-		{
+	public void ChangeHealth(float amount) {
+		if (!dead) {
 			currentHealth += amount;
 
-			if (currentHealth <= 0 && canDie)
-			{
+			if (currentHealth <= 0) {
 				dead = true;
 			}
-
-			else if (currentHealth > maxHealth)
-			{
-				currentHealth = maxHealth;
-			}
 		}
-		else
-		{
+		else {
 			currentHealth = 0;
 		}
 	}
 
-	void Start()
-	{
-		currentHealth = startingHealth;
+	void Start() {
+		currentHealth = maxHealth;
 	}
 }

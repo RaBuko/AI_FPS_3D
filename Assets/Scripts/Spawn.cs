@@ -10,19 +10,15 @@ public class Spawn : MonoBehaviour {
 	public Transform lastSpawner;
 	public float timeBetweenSpawnsModifier = 0.5f;
 	
-	void Start()
-	{
+	void Start() {
 		spawnTime = timeBetweenSpawns;
 		lastSpawner = transform.Find("Spawn");
 	}
 	
-	void Update()
-	{
+	void Update() {
 		spawnTime -= Time.deltaTime;
-		if (spawnTime <= 0)
-		{
-			if (timeBetweenSpawns > 1)
-			{
+		if (spawnTime <= 0) {
+			if (timeBetweenSpawns > 1) {
 				timeBetweenSpawns -= timeBetweenSpawnsModifier;
 			}
 			spawnTime = timeBetweenSpawns;
@@ -31,11 +27,9 @@ public class Spawn : MonoBehaviour {
 		}
 	}
 
-	Transform ChooseSpawner()
-	{
+	Transform ChooseSpawner() {
 		var children = new List<Transform>();
-		foreach (var child in transform)
-		{
+		foreach (var child in transform) {
 			children.Add((Transform)child);
 		}
 		return children.OrderBy(x => System.Guid.NewGuid()).FirstOrDefault();
