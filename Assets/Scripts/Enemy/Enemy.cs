@@ -14,8 +14,7 @@ public class Enemy : MonoBehaviour {
 	public float AmountOfDamageMin = 3.0f;
 	public float AmountOfDamageMax = 5.0f;
 	public float timeBetweenAttacks = 1.7f;
-	public int distanceRunCloser = 15;
-	public int distanceStopRunningCloser = 11;
+	public int shootRange = 13;
 	public int minDistanceForSniperRifle = 7;
 	public int maxDistanceForFists = 1;
 
@@ -43,10 +42,11 @@ public class Enemy : MonoBehaviour {
 				ChangeWeapon(distanceFromPlayer);
 			}
 
-			MoveReactionForPlayer(distanceFromPlayer);
+			ReactToPlayer(distanceFromPlayer);
 			
 			if (GetComponent<HealthSystem>().dead) {
 				actionsComponent.Death();
+				navMeshAgent.isStopped = true;
 				isDead = true;
 				Destroy(GetComponent<Rigidbody>(), 2);
 				Destroy(GetComponent<BoxCollider>(), 2);
@@ -67,17 +67,17 @@ public class Enemy : MonoBehaviour {
 		}
 	}
 
-	void MoveReactionForPlayer(int distanceFromPlayer) {
+	void ReactToPlayer(int distanceFromPlayer) {
 		timeToAttack -= Time.deltaTime;
 		isRunning = !navMeshAgent.isStopped;
 
-		if (!playerDetected || (distanceFromPlayer > distanceRunCloser && navMeshAgent.isStopped)) {
+		if (!playerDetected || (distanceFromPlayer > shootRange && navMeshAgent.isStopped)) {
 			timeToAttack = timeBetweenAttacks;
 			navMeshAgent.isStopped = false;
 			navMeshAgent.SetDestination(player.transform.position);
 			actionsComponent.Run();
 		}
-		else if (distanceFromPlayer < distanceStopRunningCloser && playerDetected) {
+		else if (distanceFromPlayer < shootRange && playerDetected) {
 			navMeshAgent.isStopped = true;
 			if (timeToAttack <= 0) {
 				timeToAttack = timeBetweenAttacks;
